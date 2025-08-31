@@ -9,3 +9,5 @@ wheels/
 # Virtual environments
 .venv
 llmops_2
+.vscode
+.env
