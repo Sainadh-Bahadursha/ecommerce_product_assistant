@@ -13,13 +13,11 @@ class FlipkartScraper:
         self.output_dir = output_dir
         os.makedirs(self.output_dir, exist_ok=True)
 
-    def get_top_reviews(self,product_url,count=2):
-        """Get the top reviews for a product.
-        """
+    def get_top_reviews(self, product_url, count=2):
         options = uc.ChromeOptions()
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-blink-features=AutomationControlled")
-        driver = uc.Chrome(options=options,use_subprocess=True)
+        driver = uc.Chrome(options=options, use_subprocess=True)
 
         if not product_url.startswith("http"):
             driver.quit()
@@ -28,18 +26,22 @@ class FlipkartScraper:
         try:
             driver.get(product_url)
             time.sleep(4)
+
             try:
                 driver.find_element(By.XPATH, "//button[contains(text(), '✕')]").click()
                 time.sleep(1)
-            except Exception as e:
-                print(f"Error occurred while closing popup: {e}")
+            except:
+                pass
 
             for _ in range(4):
                 ActionChains(driver).send_keys(Keys.END).perform()
                 time.sleep(1.5)
 
             soup = BeautifulSoup(driver.page_source, "html.parser")
-            review_blocks = soup.select("div._27M-vq, div.col.EPCmJX, div._6K-7Co")
+
+            # ✅ Correct selectors for review titles + descriptions
+            review_blocks = soup.select("p.qW2QI1, div.G4PxIA div div")
+
             seen = set()
             reviews = []
 
@@ -50,11 +52,13 @@ class FlipkartScraper:
                     seen.add(text)
                 if len(reviews) >= count:
                     break
+
         except Exception:
             reviews = []
 
         driver.quit()
         return " || ".join(reviews) if reviews else "No reviews found"
+
     
     def scrape_flipkart_products(self, query, max_products=1, review_count=2):
         """Scrape Flipkart products based on a search query.
@@ -76,10 +80,13 @@ class FlipkartScraper:
         items = driver.find_elements(By.CSS_SELECTOR, "div[data-id]")[:max_products]
         for item in items:
             try:
-                title = item.find_element(By.CSS_SELECTOR, "div.KzDlHZ").text.strip()
-                price = item.find_element(By.CSS_SELECTOR, "div.Nx9bqj").text.strip()
-                rating = item.find_element(By.CSS_SELECTOR, "div.XQDdHH").text.strip()
-                reviews_text = item.find_element(By.CSS_SELECTOR, "span.Wphh3N").text.strip()
+                title = item.find_element(By.CSS_SELECTOR, "div.RG5Slk").text.strip()
+
+                price = item.find_element(By.CSS_SELECTOR, "div.hZ3P6w.DeU9vF").text.strip()
+
+                rating = item.find_element(By.CSS_SELECTOR, "div.MKiFS6").text.strip()
+
+                reviews_text = item.find_element(By.CSS_SELECTOR, "span.PvbNMB").text.strip()
                 match = re.search(r"\d+(,\d+)?(?=\s+Reviews)", reviews_text)
                 total_reviews = match.group(0) if match else "N/A"
 
