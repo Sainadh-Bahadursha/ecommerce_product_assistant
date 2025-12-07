@@ -8,6 +8,32 @@ wheels/
 
 # Virtual environments
 .venv
-llmops_2
-.vscode
+# Virtual environment
+env/
+venv/
+
+# IDE/editor settings
+.vscode/
+.idea/
+
+# Environment files
 .env
+*.env
+
+# Logs
+*.log
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+archive/
+
+.vscode/
+
+# Virtual environments
+.venv/
+llmops_2/
+.vscode/
+.env
+*.log
+logs/
